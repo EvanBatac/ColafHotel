@@ -1,0 +1,58 @@
+@model BookRoomViewModel
+@{
+    ViewData["Title"] = "Book Room";
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-3">@Model.RoomName</h1>
+                <p class="text-secondary mb-2">@Model.RoomType</p>
+                <div class="detail-price mb-3">@Model.PricePerNight.ToString("C") <span>/ night</span></div>
+                <p class="text-secondary mb-0">Guest: @Model.GuestName</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-lg-5">
+                <h2 class="h4 mb-4">Reservation Details</h2>
+                <form asp-action="Book" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input asp-for="RoomId" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label asp-for="CheckInDate" class="form-label"></label>
+                            <input asp-for="CheckInDate" class="form-control" />
+                            <span asp-validation-for="CheckInDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="CheckOutDate" class="form-label"></label>
+                            <input asp-for="CheckOutDate" class="form-control" />
+                            <span asp-validation-for="CheckOutDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light border mt-4 mb-4">
+                        <div class="d-flex justify-content-between">
+                            <span>Estimated Total</span>
+                            <strong>@Model.TotalPrice.ToString("C")</strong>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                    <a asp-controller="Room" asp-action="Details" asp-route-id="@Model.RoomId" class="btn btn-outline-secondary">Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

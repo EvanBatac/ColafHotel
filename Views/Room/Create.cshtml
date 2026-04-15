@@ -1,0 +1,19 @@
+@model RoomFormViewModel
+@{
+    ViewData["Title"] = "Create Room";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-lg-5">
+                <h1 class="h3 mb-4">Create Room</h1>
+                <partial name="_RoomForm" model="Model" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

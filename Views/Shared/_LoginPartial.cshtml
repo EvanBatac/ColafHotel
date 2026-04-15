@@ -1,0 +1,37 @@
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var fullName = Context.Session.GetString(SessionKeys.FullName);
+    var role = Context.Session.GetString(SessionKeys.Role);
+    var profilePicturePath = Context.Session.GetString(SessionKeys.ProfilePicturePath);
+}
+
+@if (isAuthenticated)
+{
+    <div class="d-flex align-items-center gap-3">
+        <a asp-controller="Account" asp-action="Profile" class="navbar-profile text-decoration-none">
+            @if (!string.IsNullOrWhiteSpace(profilePicturePath))
+            {
+                <img src="@profilePicturePath" alt="@fullName" class="navbar-avatar" />
+            }
+            else
+            {
+                <span class="navbar-avatar navbar-avatar-fallback">@((fullName ?? "U").Substring(0, 1).ToUpper())</span>
+            }
+            <span class="d-none d-lg-inline">
+                @(fullName ?? User.Identity?.Name)
+                <small class="d-block text-secondary">@role</small>
+            </span>
+        </a>
+        <form asp-controller="Account" asp-action="Logout" method="post" class="mb-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="d-flex gap-2">
+        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm">Login</a>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-sm">Register</a>
+    </div>
+}

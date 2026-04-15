@@ -1,0 +1,52 @@
+@model User
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 text-center">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilePicturePath))
+                {
+                    <img src="@Model.ProfilePicturePath" alt="@Model.FullName" class="profile-hero-avatar mb-3" />
+                }
+                else
+                {
+                    <div class="profile-hero-avatar fallback-avatar mb-3">@Model.FullName.Substring(0, 1).ToUpper()</div>
+                }
+                <h1 class="h4 mb-1">@Model.FullName</h1>
+                <p class="text-secondary mb-1">@Model.Email</p>
+                <span class="badge text-bg-light">@Model.Role</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="h4 mb-1">Account Details</h2>
+                        <p class="text-secondary mb-0">Keep your guest information current.</p>
+                    </div>
+                    <a asp-action="EditProfile" class="btn btn-primary">Edit Profile</a>
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Full Name</dt>
+                    <dd class="col-sm-8">@Model.FullName</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4">Role</dt>
+                    <dd class="col-sm-8">@Model.Role</dd>
+
+                    <dt class="col-sm-4">Member Since</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToLocalTime().ToString("MMMM dd, yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

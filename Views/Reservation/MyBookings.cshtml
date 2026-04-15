@@ -1,0 +1,71 @@
+@model IEnumerable<Reservation>
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-1">My Bookings</h1>
+        <p class="text-secondary mb-0">Track your reservation history and current booking statuses.</p>
+    </div>
+    <a asp-controller="Room" asp-action="Index" class="btn btn-primary">Book Another Room</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Room</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No bookings yet.</td>
+                        </tr>
+                    }
+                    @foreach (var reservation in Model)
+                    {
+                        <tr>
+                            <td>@reservation.Room?.RoomName</td>
+                            <td>@reservation.CheckInDate.ToString("MMM dd, yyyy")</td>
+                            <td>@reservation.CheckOutDate.ToString("MMM dd, yyyy")</td>
+                            <td>@reservation.TotalPrice.ToString("C")</td>
+                            <td>
+                                <span class="badge @GetStatusBadge(reservation.Status)">@reservation.Status</span>
+                            </td>
+                            <td>@reservation.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @if (reservation.Status != ReservationStatuses.Cancelled)
+                                {
+                                    <form asp-action="Cancel" asp-route-id="@reservation.ReservationId" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private static string GetStatusBadge(string status) => status switch
+    {
+        ReservationStatuses.Confirmed => "text-bg-success",
+        ReservationStatuses.Cancelled => "text-bg-danger",
+        _ => "text-bg-warning"
+    };
+}

@@ -1,0 +1,73 @@
+@model ManageReservationsViewModel
+@{
+    ViewData["Title"] = "Manage Reservations";
+}
+
+<div class="mb-4">
+    <h1 class="h2 mb-1">Manage Reservations</h1>
+    <p class="text-secondary mb-0">Review every booking and update statuses from the admin panel.</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Guest</th>
+                        <th>Room</th>
+                        <th>Stay Dates</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Reservations.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No reservations found.</td>
+                        </tr>
+                    }
+
+                    @foreach (var reservation in Model.Reservations)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@reservation.User?.FullName</div>
+                                <div class="text-secondary small">@reservation.User?.Email</div>
+                            </td>
+                            <td>@reservation.Room?.RoomName</td>
+                            <td>@reservation.CheckInDate.ToString("MMM dd") - @reservation.CheckOutDate.ToString("MMM dd, yyyy")</td>
+                            <td>@reservation.TotalPrice.ToString("C")</td>
+                            <td><span class="badge @GetStatusBadge(reservation.Status)">@reservation.Status</span></td>
+                            <td>@reservation.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <form asp-action="Manage" method="post" class="d-flex flex-wrap gap-2 align-items-center">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="ReservationId" value="@reservation.ReservationId" />
+                                    <select name="Status" class="form-select form-select-sm admin-status-select">
+                                        <option value="@ReservationStatuses.Pending" selected="@(reservation.Status == ReservationStatuses.Pending)">Pending</option>
+                                        <option value="@ReservationStatuses.Confirmed" selected="@(reservation.Status == ReservationStatuses.Confirmed)">Confirmed</option>
+                                        <option value="@ReservationStatuses.Cancelled" selected="@(reservation.Status == ReservationStatuses.Cancelled)">Cancelled</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private static string GetStatusBadge(string status) => status switch
+    {
+        ReservationStatuses.Confirmed => "text-bg-success",
+        ReservationStatuses.Cancelled => "text-bg-danger",
+        _ => "text-bg-warning"
+    };
+}

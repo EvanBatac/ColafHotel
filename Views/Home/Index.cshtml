@@ -1,0 +1,73 @@
+@model HomeIndexViewModel
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<section class="hero-section rounded-4 overflow-hidden mb-5">
+    <div class="row g-0 align-items-center">
+        <div class="col-lg-7 p-5">
+            <span class="badge text-bg-light mb-3">ColafHotel Reservation System</span>
+            <h1 class="display-5 fw-bold mb-3">Stay in comfort, book with confidence.</h1>
+            <p class="lead text-secondary mb-4">
+                Browse stylish rooms, reserve your dates in minutes, and manage your bookings in one place.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Room" asp-action="Index" class="btn btn-primary btn-lg px-4">Explore Rooms</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Reservation" asp-action="MyBookings" class="btn btn-outline-light btn-lg px-4">My Bookings</a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg px-4">Create Account</a>
+                }
+            </div>
+        </div>
+        <div class="col-lg-5 hero-accent p-5">
+            <div class="stat-card">
+                <p class="text-uppercase small fw-semibold mb-2">Guest Experience</p>
+                <h2 class="mb-2">Modern rooms with seamless reservations</h2>
+                <p class="mb-0 text-secondary">Simple booking flow, profile management, and admin-ready operations.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-1">Featured Rooms</h2>
+            <p class="text-secondary mb-0">A quick look at our most popular spaces.</p>
+        </div>
+        <a asp-controller="Room" asp-action="Index" class="btn btn-outline-primary">View All Rooms</a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var room in Model.FeaturedRooms)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm room-card">
+                    <div class="room-image-shell">
+                        @if (!string.IsNullOrWhiteSpace(room.ImagePath))
+                        {
+                            <img src="@room.ImagePath" class="card-img-top room-image" alt="@room.RoomName" />
+                        }
+                        else
+                        {
+                            <div class="room-image-placeholder">@room.RoomType</div>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h5 mb-0">@room.RoomName</h3>
+                            <span class="badge rounded-pill text-bg-light">@room.RoomType</span>
+                        </div>
+                        <p class="text-secondary">@room.Description</p>
+                        <p class="fw-semibold mb-3">@room.PricePerNight.ToString("C") / night</p>
+                        <a asp-controller="Room" asp-action="Details" asp-route-id="@room.RoomId" class="btn btn-primary">See Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
