@@ -35,6 +35,7 @@ public class ReservationController(AppDbContext context) : Controller
             RoomType = room.RoomType,
             PricePerNight = room.PricePerNight,
             GuestName = user.FullName,
+            PaymentOption = PaymentOptions.PayOnStay,
             TotalPrice = room.PricePerNight
         });
     }
@@ -75,6 +76,7 @@ public class ReservationController(AppDbContext context) : Controller
             CheckInDate = model.CheckInDate.Date,
             CheckOutDate = model.CheckOutDate.Date,
             TotalPrice = model.TotalPrice,
+            PaymentOption = model.PaymentOption,
             Status = ReservationStatuses.Pending,
             CreatedAt = DateTime.UtcNow
         };

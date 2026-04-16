@@ -192,3 +192,5 @@
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/ColafHotel.pdb
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/ColafHotel.genruntimeconfig.cache
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/ref/ColafHotel.dll
+/Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/ColafHotel.sourcelink.json
+/Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/compressed/lfbbw8yyn1-{0}-5ipweew5fc-5ipweew5fc.gz

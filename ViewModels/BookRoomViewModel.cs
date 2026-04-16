@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using ColafHotel.Helpers;
 using ColafHotel.Models;
-
 namespace ColafHotel.ViewModels;
 
 public class BookRoomViewModel : IValidatableObject
@@ -21,6 +21,10 @@ public class BookRoomViewModel : IValidatableObject
     [Display(Name = "Check-out date")]
     public DateTime CheckOutDate { get; set; } = DateTime.Today.AddDays(2);
 
+    [Required]
+    [Display(Name = "Payment option")]
+    public string PaymentOption { get; set; } = PaymentOptions.PayOnStay;
+
     public decimal TotalPrice { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -37,6 +41,13 @@ public class BookRoomViewModel : IValidatableObject
             yield return new ValidationResult(
                 "Check-out date must be later than check-in date.",
                 new[] { nameof(CheckOutDate) });
+        }
+
+        if (PaymentOption is not PaymentOptions.PayNow and not PaymentOptions.PayOnStay)
+        {
+            yield return new ValidationResult(
+                "Please choose a valid payment option.",
+                new[] { nameof(PaymentOption) });
         }
     }
 }

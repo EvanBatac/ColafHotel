@@ -21,6 +21,7 @@
                         <th>Check-In</th>
                         <th>Check-Out</th>
                         <th>Total</th>
+                        <th>Payment</th>
                         <th>Status</th>
                         <th>Created</th>
                         <th></th>
@@ -30,7 +31,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-4">No bookings yet.</td>
+                            <td colspan="8" class="text-center py-4">No bookings yet.</td>
                         </tr>
                     }
                     @foreach (var reservation in Model)
@@ -40,6 +41,7 @@
                             <td>@reservation.CheckInDate.ToString("MMM dd, yyyy")</td>
                             <td>@reservation.CheckOutDate.ToString("MMM dd, yyyy")</td>
                             <td>@reservation.TotalPrice.ToString("C")</td>
+                            <td>@reservation.PaymentOption</td>
                             <td>
                                 <span class="badge @GetStatusBadge(reservation.Status)">@reservation.Status</span>
                             </td>

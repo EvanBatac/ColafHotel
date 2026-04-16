@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ColafHotel.Helpers;
 
 namespace ColafHotel.Models
 {
@@ -30,6 +31,10 @@ namespace ColafHotel.Models
 
         [Required]
         public string Status { get; set; } = "Pending"; // Pending, Confirmed, Cancelled
+
+        [Required]
+        [StringLength(50)]
+        public string PaymentOption { get; set; } = PaymentOptions.PayOnStay;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

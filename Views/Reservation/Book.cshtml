@@ -36,6 +36,16 @@
                             <input asp-for="CheckOutDate" class="form-control" />
                             <span asp-validation-for="CheckOutDate" class="text-danger"></span>
                         </div>
+
+                        <div class="col-12">
+                            <label asp-for="PaymentOption" class="form-label"></label>
+                            <select asp-for="PaymentOption" class="form-select">
+                                <option value="@PaymentOptions.PayNow">Pay in advance</option>
+                                <option value="@PaymentOptions.PayOnStay">Pay on the day of stay in person</option>
+                            </select>
+                            <span asp-validation-for="PaymentOption" class="text-danger"></span>
+                            <div class="form-text">Choose whether you want to settle the reservation now or pay at the hotel during check-in.</div>
+                        </div>
                     </div>
 
                     <div class="alert alert-light border mt-4 mb-4">

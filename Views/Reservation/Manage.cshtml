@@ -18,6 +18,7 @@
                         <th>Room</th>
                         <th>Stay Dates</th>
                         <th>Total</th>
+                        <th>Payment</th>
                         <th>Status</th>
                         <th>Created</th>
                         <th>Actions</th>
@@ -27,7 +28,7 @@
                     @if (!Model.Reservations.Any())
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-4">No reservations found.</td>
+                            <td colspan="8" class="text-center py-4">No reservations found.</td>
                         </tr>
                     }
 
@@ -41,6 +42,7 @@
                             <td>@reservation.Room?.RoomName</td>
                             <td>@reservation.CheckInDate.ToString("MMM dd") - @reservation.CheckOutDate.ToString("MMM dd, yyyy")</td>
                             <td>@reservation.TotalPrice.ToString("C")</td>
+                            <td>@reservation.PaymentOption</td>
                             <td><span class="badge @GetStatusBadge(reservation.Status)">@reservation.Status</span></td>
                             <td>@reservation.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
                             <td>

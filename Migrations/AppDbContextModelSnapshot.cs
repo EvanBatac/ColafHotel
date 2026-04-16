@@ -32,6 +32,11 @@ namespace ColafHotel.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PaymentOption")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("RoomId")
                         .HasColumnType("INTEGER");
 
