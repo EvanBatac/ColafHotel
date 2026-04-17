@@ -25,6 +25,8 @@ public class BookRoomViewModel : IValidatableObject
     [Display(Name = "Payment option")]
     public string PaymentOption { get; set; } = PaymentOptions.PayOnStay;
 
+    public string PaymentStatus { get; set; } = PaymentStatuses.DueOnStay;
+
     public decimal TotalPrice { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

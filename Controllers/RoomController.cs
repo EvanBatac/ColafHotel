@@ -56,15 +56,41 @@ public class RoomController(AppDbContext context, IWebHostEnvironment environmen
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(int id, int? year = null, int? month = null)
     {
-        var room = await context.Rooms.FirstOrDefaultAsync(r => r.RoomId == id);
+        var room = await context.Rooms
+            .Include(r => r.Reservations)
+            .FirstOrDefaultAsync(r => r.RoomId == id);
         if (room is null)
         {
             return NotFound();
         }
 
-        return View(room);
+        var calendarMonth = new DateTime(
+            year ?? DateTime.Today.Year,
+            month ?? DateTime.Today.Month,
+            1);
+
+        if (calendarMonth < new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1))
+        {
+            calendarMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        }
+
+        var bookedDates = GetUnavailableDates(room, calendarMonth, 42);
+
+        var viewModel = new RoomDetailsViewModel
+        {
+            Room = room,
+            CalendarMonth = calendarMonth,
+            AvailabilityDays = BuildAvailabilityCalendar(calendarMonth, bookedDates),
+            UpcomingBookedDates = bookedDates
+                .Where(date => date >= DateTime.Today)
+                .OrderBy(date => date)
+                .Take(8)
+                .ToList()
+        };
+
+        return View(viewModel);
     }
 
     [Authorize(Roles = Roles.Admin)]
@@ -202,5 +228,54 @@ public class RoomController(AppDbContext context, IWebHostEnvironment environmen
 
         TempData["SuccessMessage"] = "Room deleted successfully.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private static IReadOnlyList<DateTime> GetUnavailableDates(Room room, DateTime calendarMonth, int dayWindow)
+    {
+        var rangeStart = calendarMonth.Date;
+        var rangeEnd = calendarMonth.Date.AddDays(dayWindow);
+
+        return room.Reservations
+            .Where(reservation =>
+                reservation.Status != ReservationStatuses.Cancelled &&
+                reservation.CheckInDate.Date < rangeEnd &&
+                reservation.CheckOutDate.Date > rangeStart)
+            .SelectMany(reservation => EachDate(
+                reservation.CheckInDate.Date,
+                reservation.CheckOutDate.Date.AddDays(-1)))
+            .Distinct()
+            .OrderBy(date => date)
+            .ToList();
+    }
+
+    private static IReadOnlyList<RoomAvailabilityDayViewModel> BuildAvailabilityCalendar(
+        DateTime calendarMonth,
+        IReadOnlyCollection<DateTime> unavailableDates)
+    {
+        var firstVisibleDate = calendarMonth.AddDays(-(int)calendarMonth.DayOfWeek);
+        var unavailableLookup = unavailableDates.ToHashSet();
+        var days = new List<RoomAvailabilityDayViewModel>();
+
+        for (var offset = 0; offset < 42; offset++)
+        {
+            var date = firstVisibleDate.AddDays(offset).Date;
+            days.Add(new RoomAvailabilityDayViewModel
+            {
+                Date = date,
+                IsCurrentMonth = date.Month == calendarMonth.Month && date.Year == calendarMonth.Year,
+                IsPast = date < DateTime.Today,
+                IsUnavailable = unavailableLookup.Contains(date)
+            });
+        }
+
+        return days;
+    }
+
+    private static IEnumerable<DateTime> EachDate(DateTime startDate, DateTime endDateInclusive)
+    {
+        for (var date = startDate.Date; date <= endDateInclusive.Date; date = date.AddDays(1))
+        {
+            yield return date;
+        }
     }
 }

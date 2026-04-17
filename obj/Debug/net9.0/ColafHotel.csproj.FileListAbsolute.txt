@@ -117,7 +117,6 @@
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/scopedcss/bundle/ColafHotel.styles.css
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/scopedcss/projectbundle/ColafHotel.bundle.scp.css
-/Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/compressed/1tvwtxye19-{0}-jgk9blt3ob-jgk9blt3ob.gz
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/compressed/meo60jt9in-{0}-61n19gt1b8-61n19gt1b8.gz
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/compressed/b1sxvvjikb-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/compressed/sbe59at0wm-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -194,3 +193,4 @@
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/ref/ColafHotel.dll
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/ColafHotel.sourcelink.json
 /Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/compressed/lfbbw8yyn1-{0}-5ipweew5fc-5ipweew5fc.gz
+/Users/evangabrielbatac/Desktop/ColafHotel/obj/Debug/net9.0/compressed/1tvwtxye19-{0}-v5h0wthv9q-v5h0wthv9q.gz

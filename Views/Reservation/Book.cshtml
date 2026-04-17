@@ -48,6 +48,15 @@
                         </div>
                     </div>
 
+                    <div class="alert alert-info mt-4 mb-0">
+                        <div class="fw-semibold mb-1">Payment status preview</div>
+                        <div class="small text-secondary">
+                            @(Model.PaymentOption == PaymentOptions.PayNow
+                                ? "This booking will start as pending payment until the hotel confirms the payment."
+                                : "This booking will be marked as due on stay and paid in person during check-in.")
+                        </div>
+                    </div>
+
                     <div class="alert alert-light border mt-4 mb-4">
                         <div class="d-flex justify-content-between">
                             <span>Estimated Total</span>

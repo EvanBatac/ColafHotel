@@ -36,6 +36,7 @@ public class ReservationController(AppDbContext context) : Controller
             PricePerNight = room.PricePerNight,
             GuestName = user.FullName,
             PaymentOption = PaymentOptions.PayOnStay,
+            PaymentStatus = PaymentStatuses.DueOnStay,
             TotalPrice = room.PricePerNight
         });
     }
@@ -77,11 +78,27 @@ public class ReservationController(AppDbContext context) : Controller
             CheckOutDate = model.CheckOutDate.Date,
             TotalPrice = model.TotalPrice,
             PaymentOption = model.PaymentOption,
+            PaymentStatus = model.PaymentOption == PaymentOptions.PayNow
+                ? PaymentStatuses.Pending
+                : PaymentStatuses.DueOnStay,
+            PaymentUpdatedAt = DateTime.UtcNow,
             Status = ReservationStatuses.Pending,
             CreatedAt = DateTime.UtcNow
         };
 
         context.Reservations.Add(reservation);
+        await context.SaveChangesAsync();
+
+        context.ReservationPaymentLogs.Add(new ReservationPaymentLog
+        {
+            ReservationId = reservation.ReservationId,
+            PaymentStatus = reservation.PaymentStatus,
+            Message = reservation.PaymentOption == PaymentOptions.PayNow
+                ? "Guest selected advance payment. Waiting for payment confirmation."
+                : "Guest selected to pay on stay. Payment will be collected during check-in.",
+            CreatedAt = DateTime.UtcNow
+        });
+
         await context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Reservation submitted successfully.";
@@ -99,6 +116,7 @@ public class ReservationController(AppDbContext context) : Controller
 
         var reservations = await context.Reservations
             .Include(r => r.Room)
+            .Include(r => r.PaymentLogs.OrderByDescending(log => log.CreatedAt))
             .Where(r => r.UserId == user.UserId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -115,8 +133,10 @@ public class ReservationController(AppDbContext context) : Controller
             Reservations = await context.Reservations
                 .Include(r => r.User)
                 .Include(r => r.Room)
+                .Include(r => r.PaymentLogs.OrderByDescending(log => log.CreatedAt))
                 .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync()
+                .ToListAsync(),
+            PaymentStatuses = GetAllowedPaymentStatuses()
         };
 
         return View(viewModel);
@@ -144,7 +164,39 @@ public class ReservationController(AppDbContext context) : Controller
             return RedirectToAction(nameof(Manage));
         }
 
+        if (!GetAllowedPaymentStatuses().Contains(model.PaymentStatus))
+        {
+            TempData["ErrorMessage"] = "Invalid payment status.";
+            return RedirectToAction(nameof(Manage));
+        }
+
+        var paymentStatusChanged = !string.Equals(
+            reservation.PaymentStatus,
+            model.PaymentStatus,
+            StringComparison.Ordinal);
+        var paymentReferenceChanged = !string.Equals(
+            reservation.PaymentReference ?? string.Empty,
+            model.PaymentReference?.Trim() ?? string.Empty,
+            StringComparison.Ordinal);
+        var paymentNote = model.PaymentNote?.Trim();
+
         reservation.Status = model.Status;
+        reservation.PaymentStatus = model.PaymentStatus;
+        reservation.PaymentReference = string.IsNullOrWhiteSpace(model.PaymentReference)
+            ? null
+            : model.PaymentReference.Trim();
+        if (paymentStatusChanged || paymentReferenceChanged || !string.IsNullOrWhiteSpace(paymentNote))
+        {
+            reservation.PaymentUpdatedAt = DateTime.UtcNow;
+            context.ReservationPaymentLogs.Add(new ReservationPaymentLog
+            {
+                ReservationId = reservation.ReservationId,
+                PaymentStatus = reservation.PaymentStatus,
+                Message = BuildPaymentLogMessage(reservation.PaymentStatus, reservation.PaymentReference, paymentNote),
+                CreatedAt = reservation.PaymentUpdatedAt.Value
+            });
+        }
+
         await context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Reservation status updated.";
@@ -210,5 +262,29 @@ public class ReservationController(AppDbContext context) : Controller
     {
         var nights = Math.Max((checkOutDate.Date - checkInDate.Date).Days, 1);
         return nights * pricePerNight;
+    }
+
+    private static IReadOnlyList<string> GetAllowedPaymentStatuses() =>
+    [
+        PaymentStatuses.Pending,
+        PaymentStatuses.DueOnStay,
+        PaymentStatuses.Paid,
+        PaymentStatuses.Refunded
+    ];
+
+    private static string BuildPaymentLogMessage(string paymentStatus, string? paymentReference, string? paymentNote)
+    {
+        var message = $"Payment status updated to {paymentStatus}.";
+        if (!string.IsNullOrWhiteSpace(paymentReference))
+        {
+            message += $" Reference: {paymentReference}.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(paymentNote))
+        {
+            message += $" Note: {paymentNote}.";
+        }
+
+        return message;
     }
 }

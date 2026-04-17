@@ -9,4 +9,13 @@ public class UpdateReservationStatusViewModel
 
     [Required]
     public string Status { get; set; } = string.Empty;
+
+    [Required]
+    public string PaymentStatus { get; set; } = string.Empty;
+
+    [StringLength(100)]
+    public string? PaymentReference { get; set; }
+
+    [StringLength(255)]
+    public string? PaymentNote { get; set; }
 }

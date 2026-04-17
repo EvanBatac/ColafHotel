@@ -19,6 +19,14 @@ public static class PaymentOptions
     public const string PayOnStay = "Pay on Stay";
 }
 
+public static class PaymentStatuses
+{
+    public const string Pending = "Pending Payment";
+    public const string DueOnStay = "Due on Stay";
+    public const string Paid = "Paid";
+    public const string Refunded = "Refunded";
+}
+
 public static class RoomTypes
 {
     public const string Single = "Single";

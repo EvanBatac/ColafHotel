@@ -1,19 +1,22 @@
-@model Room
+@model RoomDetailsViewModel
 @{
     ViewData["Title"] = "Room Details";
+    var room = Model.Room;
+    var previousMonth = Model.CalendarMonth.AddMonths(-1);
+    var nextMonth = Model.CalendarMonth.AddMonths(1);
 }
 
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="card border-0 shadow-sm">
             <div class="room-image-shell details-image-shell">
-                @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                @if (!string.IsNullOrWhiteSpace(room.ImagePath))
                 {
-                    <img src="@Model.ImagePath" class="room-image details-image" alt="@Model.RoomName" />
+                    <img src="@room.ImagePath" class="room-image details-image" alt="@room.RoomName" />
                 }
                 else
                 {
-                    <div class="room-image-placeholder details-placeholder">@Model.RoomType</div>
+                    <div class="room-image-placeholder details-placeholder">@room.RoomType</div>
                 }
             </div>
         </div>
@@ -23,29 +26,92 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="h2 mb-0">@Model.RoomName</h1>
-                    <span class="badge @(Model.IsAvailable ? "text-bg-success" : "text-bg-secondary")">
-                        @(Model.IsAvailable ? "Available" : "Unavailable")
+                    <h1 class="h2 mb-0">@room.RoomName</h1>
+                    <span class="badge @(room.IsAvailable ? "text-bg-success" : "text-bg-secondary")">
+                        @(room.IsAvailable ? "Available" : "Unavailable")
                     </span>
                 </div>
 
-                <p class="text-secondary fs-5">@Model.RoomType</p>
-                <p class="mb-4">@Model.Description</p>
+                <p class="text-secondary fs-5">@room.RoomType</p>
+                <p class="mb-4">@room.Description</p>
 
-                <div class="detail-price mb-4">@Model.PricePerNight.ToString("C") <span>/ night</span></div>
+                <div class="detail-price mb-4">@room.PricePerNight.ToString("C") <span>/ night</span></div>
 
                 <div class="d-flex flex-wrap gap-2">
-                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(Roles.Guest) && Model.IsAvailable)
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(Roles.Guest) && room.IsAvailable)
                     {
-                        <a asp-controller="Reservation" asp-action="Book" asp-route-roomId="@Model.RoomId" class="btn btn-primary">Book This Room</a>
+                        <a asp-controller="Reservation" asp-action="Book" asp-route-roomId="@room.RoomId" class="btn btn-primary">Book This Room</a>
                     }
                     @if (User.Identity?.IsAuthenticated == true && User.IsInRole(Roles.Admin))
                     {
-                        <a asp-action="Edit" asp-route-id="@Model.RoomId" class="btn btn-dark">Edit Room</a>
+                        <a asp-action="Edit" asp-route-id="@room.RoomId" class="btn btn-dark">Edit Room</a>
                     }
                     <a asp-action="Index" class="btn btn-outline-secondary">Back to Rooms</a>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h2 class="h4 mb-1">Availability Calendar</h2>
+                <p class="text-secondary mb-0">Unavailable dates are based on active reservations for this room.</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                @if (previousMonth >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1))
+                {
+                    <a asp-action="Details" asp-route-id="@room.RoomId" asp-route-year="@previousMonth.Year" asp-route-month="@previousMonth.Month" class="btn btn-outline-secondary btn-sm">Previous</a>
+                }
+                <div class="fw-semibold calendar-month-label">@Model.CalendarMonth.ToString("MMMM yyyy")</div>
+                <a asp-action="Details" asp-route-id="@room.RoomId" asp-route-year="@nextMonth.Year" asp-route-month="@nextMonth.Month" class="btn btn-outline-secondary btn-sm">Next</a>
+            </div>
+        </div>
+
+        <div class="availability-legend mb-3">
+            <span><span class="legend-dot legend-available"></span>Available</span>
+            <span><span class="legend-dot legend-booked"></span>Booked</span>
+            <span><span class="legend-dot legend-past"></span>Past date</span>
+        </div>
+
+        <div class="availability-calendar">
+            @foreach (var dayName in new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" })
+            {
+                <div class="calendar-weekday">@dayName</div>
+            }
+
+            @foreach (var day in Model.AvailabilityDays)
+            {
+                var stateClass = day.IsPast
+                    ? "is-past"
+                    : day.IsUnavailable
+                        ? "is-booked"
+                        : "is-available";
+                var monthClass = day.IsCurrentMonth ? string.Empty : "is-muted";
+
+                <div class="calendar-day @stateClass @monthClass">
+                    <div class="calendar-day-number">@day.Date.Day</div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-4">
+            <h3 class="h6 text-uppercase text-secondary mb-3">Next blocked dates</h3>
+            @if (Model.UpcomingBookedDates.Any())
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var date in Model.UpcomingBookedDates)
+                    {
+                        <span class="badge rounded-pill text-bg-light border px-3 py-2">@date.ToString("MMM dd, yyyy")</span>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-secondary mb-0">No blocked dates in the current viewing window.</p>
+            }
         </div>
     </div>
 </div>

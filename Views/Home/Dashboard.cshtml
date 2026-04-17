@@ -1,0 +1,254 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<section class="admin-hero rounded-4 overflow-hidden mb-4">
+    <div class="row g-0 align-items-center">
+        <div class="col-lg-8 p-4 p-lg-5">
+            <span class="badge text-bg-light mb-3">Operations Overview</span>
+            <h1 class="display-6 fw-bold mb-2">Admin Dashboard</h1>
+            <p class="lead text-secondary mb-0">Track reservation flow, room activity, and payment health in one place.</p>
+        </div>
+        <div class="col-lg-4 p-4 p-lg-5 admin-hero-actions">
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-controller="Reservation" asp-action="Manage" class="btn btn-primary">Manage Reservations</a>
+                <a asp-controller="Room" asp-action="Create" class="btn btn-outline-light">Add Room</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <div class="row g-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="dashboard-card">
+                <div class="dashboard-card-label">Total Rooms</div>
+                <div class="dashboard-card-value">@Model.TotalRooms</div>
+                <div class="dashboard-card-note">@Model.AvailableRooms currently marked available</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="dashboard-card">
+                <div class="dashboard-card-label">Reservations</div>
+                <div class="dashboard-card-value">@Model.TotalReservations</div>
+                <div class="dashboard-card-note">@Model.PendingReservations pending, @Model.ConfirmedReservations confirmed</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="dashboard-card">
+                <div class="dashboard-card-label">Projected Revenue</div>
+                <div class="dashboard-card-value">@Model.ProjectedRevenue.ToString("C0")</div>
+                <div class="dashboard-card-note">From active, non-cancelled reservations</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="dashboard-card">
+                <div class="dashboard-card-label">Collected Revenue</div>
+                <div class="dashboard-card-value">@Model.CollectedRevenue.ToString("C0")</div>
+                <div class="dashboard-card-note">@Model.PaidReservations reservations marked paid</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="h4 mb-1">Reservation Health</h2>
+                        <p class="text-secondary mb-0">A quick look at booking status distribution.</p>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                    <div class="metric-bar-group">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Pending</span>
+                            <strong>@Model.PendingReservations</strong>
+                        </div>
+                        <div class="metric-bar"><div class="metric-bar-fill fill-warning" style="width: @GetWidth(Model.PendingReservations, Model.TotalReservations)%"></div></div>
+                    </div>
+                    <div class="metric-bar-group">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Confirmed</span>
+                            <strong>@Model.ConfirmedReservations</strong>
+                        </div>
+                        <div class="metric-bar"><div class="metric-bar-fill fill-success" style="width: @GetWidth(Model.ConfirmedReservations, Model.TotalReservations)%"></div></div>
+                    </div>
+                    <div class="metric-bar-group">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Cancelled</span>
+                            <strong>@Model.CancelledReservations</strong>
+                        </div>
+                        <div class="metric-bar"><div class="metric-bar-fill fill-danger" style="width: @GetWidth(Model.CancelledReservations, Model.TotalReservations)%"></div></div>
+                    </div>
+                </div>
+                <div class="dashboard-inline-stats mt-4">
+                    <div>
+                        <div class="dashboard-inline-value">@Model.UpcomingCheckIns</div>
+                        <div class="text-secondary small">Check-ins in the next 7 days</div>
+                    </div>
+                    <div>
+                        <div class="dashboard-inline-value">@Model.AvailableRooms</div>
+                        <div class="text-secondary small">Rooms ready to sell</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-1">Payment Snapshot</h2>
+                <p class="text-secondary mb-4">Track what still needs attention from the finance side.</p>
+
+                <div class="row g-3">
+                    <div class="col-sm-4">
+                        <div class="dashboard-pill dashboard-pill-warning">
+                            <div class="dashboard-pill-value">@Model.PendingPayments</div>
+                            <div class="dashboard-pill-label">Pending Payment</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="dashboard-pill dashboard-pill-neutral">
+                            <div class="dashboard-pill-value">@Model.DueOnStayPayments</div>
+                            <div class="dashboard-pill-label">Due on Stay</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="dashboard-pill dashboard-pill-success">
+                            <div class="dashboard-pill-value">@Model.PaidReservations</div>
+                            <div class="dashboard-pill-label">Paid</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 dashboard-callout">
+                    <div class="fw-semibold mb-1">Revenue coverage</div>
+                    <div class="small text-secondary">
+                        @if (Model.ProjectedRevenue > 0)
+                        {
+                            <text>@(((Model.CollectedRevenue / Model.ProjectedRevenue) * 100m).ToString("0"))% of active reservation revenue has been collected.</text>
+                        }
+                        else
+                        {
+                            <text>No active reservation revenue yet.</text>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-xl-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-0">
+                <div class="p-4 pb-0">
+                    <h2 class="h4 mb-1">Recent Reservations</h2>
+                    <p class="text-secondary mb-0">Latest booking activity across the hotel.</p>
+                </div>
+                <div class="table-responsive mt-3">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Guest</th>
+                                <th>Room</th>
+                                <th>Stay</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.RecentReservations.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">No reservations yet.</td>
+                                </tr>
+                            }
+                            @foreach (var reservation in Model.RecentReservations)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@reservation.User?.FullName</div>
+                                        <div class="small text-secondary">@reservation.User?.Email</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">@reservation.Room?.RoomName</div>
+                                        <div class="small text-secondary">@reservation.Room?.RoomType</div>
+                                    </td>
+                                    <td>@reservation.CheckInDate.ToString("MMM dd") - @reservation.CheckOutDate.ToString("MMM dd")</td>
+                                    <td>
+                                        <div>@reservation.PaymentStatus</div>
+                                        <div class="small text-secondary">@reservation.TotalPrice.ToString("C")</div>
+                                    </td>
+                                    <td><span class="badge @GetStatusBadge(reservation.Status)">@reservation.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2 class="h4 mb-1">Top Rooms</h2>
+                        <p class="text-secondary mb-0">Rooms generating the most booking activity.</p>
+                    </div>
+                    <a asp-controller="Room" asp-action="Index" class="btn btn-outline-primary btn-sm">All Rooms</a>
+                </div>
+
+                @if (!Model.TopRooms.Any())
+                {
+                    <div class="alert alert-light border mb-0">No room performance data yet.</div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var room in Model.TopRooms)
+                        {
+                            <div class="dashboard-list-item">
+                                <div>
+                                    <div class="fw-semibold">@room.RoomName</div>
+                                    <div class="small text-secondary">@room.RoomType</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-semibold">@room.BookingCount bookings</div>
+                                    <div class="small text-secondary">@room.Revenue.ToString("C0") revenue</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@functions {
+    private static string GetStatusBadge(string status) => status switch
+    {
+        ReservationStatuses.Confirmed => "text-bg-success",
+        ReservationStatuses.Cancelled => "text-bg-danger",
+        _ => "text-bg-warning"
+    };
+
+    private static string GetWidth(int value, int total)
+    {
+        if (total <= 0)
+        {
+            return "0";
+        }
+
+        return Math.Max((value * 100m) / total, 6m).ToString("0.##");
+    }
+}

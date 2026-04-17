@@ -93,7 +93,7 @@ public class AccountController(AppDbContext context, IWebHostEnvironment environ
         }
 
         return user.Role == Roles.Admin
-            ? RedirectToAction("Manage", "Reservation")
+            ? RedirectToAction("Dashboard", "Home")
             : RedirectToAction("Index", "Room");
     }
 

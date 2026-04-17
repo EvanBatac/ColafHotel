@@ -41,7 +41,14 @@
                             <td>@reservation.CheckInDate.ToString("MMM dd, yyyy")</td>
                             <td>@reservation.CheckOutDate.ToString("MMM dd, yyyy")</td>
                             <td>@reservation.TotalPrice.ToString("C")</td>
-                            <td>@reservation.PaymentOption</td>
+                            <td>
+                                <div>@reservation.PaymentOption</div>
+                                <div class="small text-secondary">@reservation.PaymentStatus</div>
+                                @if (!string.IsNullOrWhiteSpace(reservation.PaymentReference))
+                                {
+                                    <div class="small text-secondary">Ref: @reservation.PaymentReference</div>
+                                }
+                            </td>
                             <td>
                                 <span class="badge @GetStatusBadge(reservation.Status)">@reservation.Status</span>
                             </td>
@@ -54,8 +61,34 @@
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
                                     </form>
                                 }
+                                @if (reservation.PaymentLogs.Any())
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#payment-history-@reservation.ReservationId" aria-expanded="false">
+                                        Payment History
+                                    </button>
+                                }
                             </td>
                         </tr>
+                        @if (reservation.PaymentLogs.Any())
+                        {
+                            <tr class="collapse" id="payment-history-@reservation.ReservationId">
+                                <td colspan="8" class="bg-light-subtle">
+                                    <div class="p-3">
+                                        <h3 class="h6 mb-3">Payment History</h3>
+                                        <div class="d-flex flex-column gap-2">
+                                            @foreach (var log in reservation.PaymentLogs.OrderByDescending(log => log.CreatedAt))
+                                            {
+                                                <div class="payment-history-item">
+                                                    <div class="fw-semibold">@log.PaymentStatus</div>
+                                                    <div class="small text-secondary">@log.Message</div>
+                                                    <div class="small text-secondary">@log.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>

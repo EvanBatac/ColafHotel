@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<User> Users => Set<User>();
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
+    public DbSet<ReservationPaymentLog> ReservationPaymentLogs => Set<ReservationPaymentLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,6 +29,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(r => r.Room)
             .WithMany(rm => rm.Reservations)
             .HasForeignKey(r => r.RoomId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReservationPaymentLog>()
+            .HasOne(log => log.Reservation)
+            .WithMany(reservation => reservation.PaymentLogs)
+            .HasForeignKey(log => log.ReservationId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<User>().HasData(new User
