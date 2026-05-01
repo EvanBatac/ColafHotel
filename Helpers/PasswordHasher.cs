@@ -22,18 +22,28 @@ public static class PasswordHasher
         return $"pbkdf2${Iterations}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hash)}";
     }
 
-    public static bool VerifyPassword(string password, string storedHash)
+    public static bool VerifyPassword(string password, string hash)
     {
-        var parts = storedHash.Split('$', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length != 4 || parts[0] != "pbkdf2")
-        {
+        var parts = hash.Split(':');
+        if (parts.Length != 3) return false;
+        
+        if (!int.TryParse(parts[1], out var iterations))
             return false;
-        }
 
-        var iterations = int.Parse(parts[1]);
-        var salt = Convert.FromBase64String(parts[2]);
-        var expectedHash = Convert.FromBase64String(parts[3]);
-        var computedHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, expectedHash.Length);
-        return CryptographicOperations.FixedTimeEquals(computedHash, expectedHash);
+        try
+        {
+            var salt = Convert.FromBase64String(parts[0]);
+            var storedHash = Convert.FromBase64String(parts[2]);
+        
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256))
+            {
+                var computedHash = pbkdf2.GetBytes(32);
+                return computedHash.SequenceEqual(storedHash);
+            }
+        }
+        catch (FormatException)
+        {
+            return false;  
+        }
     }
 }
