@@ -1,4 +1,3 @@
-@model LoginViewModel
 @{
     ViewData["Title"] = "Login";
 }
@@ -7,33 +6,38 @@
     <div class="col-lg-5">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4 p-lg-5">
-                <h1 class="h3 mb-3">Login</h1>
-                <p class="text-secondary">Access your ColafHotel account to continue managing reservations.</p>
 
-                <form asp-action="Login" method="post" novalidate>
-                    @Html.AntiForgeryToken()
-                    <input asp-for="ReturnUrl" type="hidden" />
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <h1 class="h3 mb-3">Login</h1>
+                <p class="text-secondary">
+                    Access your ColafHotel account to continue managing reservations.
+                </p>
+
+                <form method="post">
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" placeholder="Enter your email" />
                     </div>
 
                     <div class="mb-4">
-                        <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" placeholder="Enter your password" />
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                    <button type="submit" class="btn btn-primary w-100">
+                        Login
+                    </button>
+
                 </form>
+
+                <div class="text-center mt-3">
+                    <small class="text-secondary">
+                        Don't have an account?
+                        <a asp-controller="Account" asp-action="Register">Register</a>
+                    </small>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

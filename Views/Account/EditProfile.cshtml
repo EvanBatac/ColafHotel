@@ -1,69 +1,71 @@
-@model EditProfileViewModel
 @{
     ViewData["Title"] = "Edit Profile";
 }
 
 <div class="row justify-content-center">
     <div class="col-xl-8">
+
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4 p-lg-5">
+
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h1 class="h3 mb-1">Edit Profile</h1>
-                        <p class="text-secondary mb-0">Update your guest details and profile picture.</p>
+                        <p class="text-secondary mb-0">
+                            Update your guest details and profile picture.
+                        </p>
                     </div>
-                    <a asp-action="Profile" class="btn btn-outline-secondary">Back to Profile</a>
+
+                    <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-secondary">
+                        Back to Profile
+                    </a>
                 </div>
 
-                <form asp-action="EditProfile" method="post" enctype="multipart/form-data" novalidate>
-                    @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <form method="post" enctype="multipart/form-data">
 
                     <div class="row g-4">
+
                         <div class="col-md-6">
-                            <label asp-for="FullName" class="form-label"></label>
-                            <input asp-for="FullName" class="form-control" />
-                            <span asp-validation-for="FullName" class="text-danger"></span>
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" placeholder="Enter full name" />
                         </div>
 
                         <div class="col-md-6">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" placeholder="Enter email" />
                         </div>
 
                         <div class="col-md-6">
-                            <label asp-for="NewPassword" class="form-label"></label>
-                            <input asp-for="NewPassword" class="form-control" />
-                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" placeholder="New password" />
                         </div>
 
                         <div class="col-md-6">
-                            <label asp-for="ConfirmNewPassword" class="form-label"></label>
-                            <input asp-for="ConfirmNewPassword" class="form-control" />
-                            <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" placeholder="Confirm password" />
                         </div>
 
                         <div class="col-12">
-                            <label asp-for="ProfilePicture" class="form-label"></label>
-                            <input asp-for="ProfilePicture" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif" />
-                            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
-                            @if (!string.IsNullOrWhiteSpace(Model.ExistingProfilePicturePath))
-                            {
-                                <img src="@Model.ExistingProfilePicturePath" alt="Current profile picture" class="profile-preview mt-3" />
-                            }
+                            <label class="form-label">Profile Picture</label>
+                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif" />
+
+                            <img src="/profile/default.png"
+                                 class="profile-preview mt-3"
+                                 alt="Profile preview" />
                         </div>
+
                     </div>
 
                     <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" class="btn btn-primary">
+                            Save Changes
+                        </button>
                     </div>
+
                 </form>
+
             </div>
         </div>
+
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
