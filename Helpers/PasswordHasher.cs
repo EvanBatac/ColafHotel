@@ -24,26 +24,59 @@ public static class PasswordHasher
 
     public static bool VerifyPassword(string password, string hash)
     {
-        var parts = hash.Split(':');
-        if (parts.Length != 3) return false;
-        
-        if (!int.TryParse(parts[1], out var iterations))
-            return false;
+        if (VerifyModernHash(password, hash))
+        {
+            return true;
+        }
 
+        return VerifyLegacyHash(password, hash);
+    }
+
+    private static bool VerifyModernHash(string password, string hash)
+    {
+        var parts = hash.Split('$');
+        if (parts.Length != 4 || parts[0] != "pbkdf2")
+        {
+            return false;
+        }
+
+        if (!int.TryParse(parts[1], out var iterations))
+        {
+            return false;
+        }
+
+        return VerifyPbkdf2(password, iterations, parts[2], parts[3]);
+    }
+
+    private static bool VerifyLegacyHash(string password, string hash)
+    {
+        var parts = hash.Split(':');
+        if (parts.Length != 3)
+        {
+            return false;
+        }
+
+        if (!int.TryParse(parts[1], out var iterations))
+        {
+            return false;
+        }
+
+        return VerifyPbkdf2(password, iterations, parts[0], parts[2]);
+    }
+
+    private static bool VerifyPbkdf2(string password, int iterations, string saltBase64, string hashBase64)
+    {
         try
         {
-            var salt = Convert.FromBase64String(parts[0]);
-            var storedHash = Convert.FromBase64String(parts[2]);
-        
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256))
-            {
-                var computedHash = pbkdf2.GetBytes(32);
-                return computedHash.SequenceEqual(storedHash);
-            }
+            var salt = Convert.FromBase64String(saltBase64);
+            var storedHash = Convert.FromBase64String(hashBase64);
+            var computedHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, storedHash.Length);
+
+            return CryptographicOperations.FixedTimeEquals(computedHash, storedHash);
         }
         catch (FormatException)
         {
-            return false;  
+            return false;
         }
     }
 }
